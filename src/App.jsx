@@ -19,7 +19,7 @@ function App() {
 
   const [activeTab, setActiveTab] = useState('list');
   const [testMode, setTestMode] = useState('all'); // 'all' | 'wrong'
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('voca_apikey') || '');
+  const [apiKey, setApiKey] = useState(() => import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('voca_apikey') || '');
   const [showSettings, setShowSettings] = useState(false);
   const [tempKey, setTempKey] = useState('');
 
@@ -82,14 +82,16 @@ function App() {
   return (
     <div className="fade-in">
       <header className="app-header" style={{ position: 'relative' }}>
-        <button 
-          onClick={openSettings}
-          title="설정 (API 키)"
-          className="icon-btn"
-          style={{ position: 'absolute', right: '0', top: '0', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '0.75rem', borderRadius: '12px' }}
-        >
-          <Settings size={22} />
-        </button>
+        {!import.meta.env.VITE_GEMINI_API_KEY && (
+          <button 
+            onClick={openSettings}
+            title="설정 (API 키)"
+            className="icon-btn"
+            style={{ position: 'absolute', right: '0', top: '0', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '0.75rem', borderRadius: '12px' }}
+          >
+            <Settings size={22} />
+          </button>
+        )}
         
         <h1 className="app-title text-gradient">VocabMaster</h1>
         <p className="app-subtitle">단어부터 예문까지, 완벽한 어휘 체화 서비스 ✨</p>
