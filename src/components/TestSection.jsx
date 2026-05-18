@@ -11,9 +11,10 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [testMode, setTestMode] = useState('ko_to_en');
 
   useEffect(() => {
-    if (words.length < 3) {
+    if (words.length === 0) {
       setStages([]);
       return;
     }
@@ -73,7 +74,15 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
     if (!inputVal.trim() || feedback) return;
 
     const currentWord = testWords[currentIndex];
-    const isCorrect = inputVal.trim().toLowerCase() === currentWord.en.toLowerCase();
+    
+    let isCorrect = false;
+    if (testMode === 'ko_to_en') {
+      isCorrect = inputVal.trim().toLowerCase() === currentWord.en.toLowerCase();
+    } else {
+      const inputStr = inputVal.trim().replace(/\s+/g, '');
+      const koStr = currentWord.ko.trim().replace(/\s+/g, '');
+      isCorrect = inputStr === koStr || currentWord.ko.split(',').map(s => s.trim().replace(/\s+/g, '')).includes(inputStr);
+    }
     
     if (isCorrect) {
       setFeedback('success');
@@ -96,10 +105,10 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
     }, 1500);
   };
 
-  if (words.length < 3) {
+  if (words.length === 0) {
     return (
       <div className="glass-panel fade-in" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-        테스트를 진행하려면 해당 리스트에 최소 3개 이상의 단어가 필요합니다.
+        테스트를 진행하려면 단어장에 단어가 필요합니다.
       </div>
     );
   }
@@ -113,6 +122,31 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
             총 <strong>{words.length}</strong>개의 단어가 피로도를 줄이기 위해 랜덤하게 분할되었습니다.<br/>
             원하는 단계를 선택하여 바로 도장을 격파해 보세요!
           </p>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setTestMode('ko_to_en')}
+              style={{ 
+                padding: '0.6rem 1.2rem', borderRadius: '8px', border: '2px solid var(--primary)', 
+                background: testMode === 'ko_to_en' ? 'var(--primary)' : 'transparent', 
+                color: testMode === 'ko_to_en' ? '#fff' : 'var(--primary)', 
+                cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem',
+                transition: 'all 0.2s'
+              }}>
+              뜻 보고 영단어 맞추기
+            </button>
+            <button 
+              onClick={() => setTestMode('en_to_ko')}
+              style={{ 
+                padding: '0.6rem 1.2rem', borderRadius: '8px', border: '2px solid var(--primary)', 
+                background: testMode === 'en_to_ko' ? 'var(--primary)' : 'transparent', 
+                color: testMode === 'en_to_ko' ? '#fff' : 'var(--primary)', 
+                cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem',
+                transition: 'all 0.2s'
+              }}>
+              영단어 보고 뜻 맞추기
+            </button>
+          </div>
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '400px', margin: '0 auto' }}>
@@ -202,13 +236,13 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
       </div>
       
       <div className="test-word text-gradient">
-        {currentWord.ko}
+        {testMode === 'ko_to_en' ? currentWord.ko : currentWord.en}
       </div>
 
       <form className="test-input-group" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="영어 단어를 직접 입력하세요"
+          placeholder={testMode === 'ko_to_en' ? "영어 단어를 직접 입력하세요" : "한국어 뜻을 직접 입력하세요"}
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           disabled={feedback !== null}
@@ -229,7 +263,7 @@ export default function TestSection({ words, onWrongAnswer, onCorrectAnswer }) {
           <span className="feedback-success">정답입니다! 너무 잘 하셨어요 ✨</span>
         ) : (
           <span className="feedback-error">
-            틀렸습니다! 오답 노트에 기록됩니다. 정답은 <strong>{currentWord.en}</strong> 입니다.
+            틀렸습니다! 오답 노트에 기록됩니다. 정답은 <strong>{testMode === 'ko_to_en' ? currentWord.en : currentWord.ko}</strong> 입니다.
           </span>
         )}
       </div>
