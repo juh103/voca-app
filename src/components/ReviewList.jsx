@@ -28,15 +28,9 @@ export default function ReviewList({ wrongWords, onRemove, onStartTest }) {
         <h3 style={{ color: 'var(--danger)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           🚨 극복해야 할 오답 단어 ({wrongWords.length}개)
         </h3>
-        {wrongWords.length >= 3 ? (
-          <button className="btn-primary" onClick={onStartTest} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--danger)' }}>
-            <Play size={18} /> 오답만 테스트하기
-          </button>
-        ) : (
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-            * 오답 집중 테스트는 단어가 3개 이상 모였을 때 가능합니다.
-          </span>
-        )}
+        <button className="btn-primary" onClick={onStartTest} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--danger)' }}>
+          <Play size={18} /> 오답만 테스트하기
+        </button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
