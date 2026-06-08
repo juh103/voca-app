@@ -63,7 +63,13 @@ export default function AddWordForm({ apiKey, onAddMultiple }) {
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
     if (!en.trim() || !ko.trim()) return;
-    
+    // If no API key, allow manual add without AI-generated examples
+    if (!apiKey) {
+      onAddMultiple([{ id: Date.now(), en: en.trim(), ko: ko.trim(), example: '', exampleKo: '' }]);
+      setEn(''); setKo('');
+      return;
+    }
+
     await fetchAIExamples([{ en: en.trim(), ko: ko.trim() }]);
   };
 
@@ -87,7 +93,14 @@ export default function AddWordForm({ apiKey, onAddMultiple }) {
     });
 
     if (parsedWords.length > 0) {
-      await fetchAIExamples(parsedWords);
+      // If no API key, add parsed words directly without examples
+      if (!apiKey) {
+        const simpleWords = parsedWords.map(w => ({ id: Date.now() + Math.random(), en: w.en, ko: w.ko, example: '', exampleKo: '' }));
+        onAddMultiple(simpleWords);
+        setBulkText('');
+      } else {
+        await fetchAIExamples(parsedWords);
+      }
     } else {
       alert("단어와 뜻이 올바르게 구분된 텍스트를 하나 이상 입력해주세요.");
     }
